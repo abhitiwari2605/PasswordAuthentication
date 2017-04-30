@@ -16,8 +16,9 @@ public class PasswordAuthntication {
 	}
 	
 	public static byte[] hashPassword(char[] password, byte[] salt){
-		PBEKeySpec spec = new PBEKeySpec(password, salt, ITERATIONS, KEY_LENGTH);
 		Arrays.fill(password, Character.MIN_VALUE);
+		PBEKeySpec spec = new PBEKeySpec(password, salt, ITERATIONS, KEY_LENGTH);
+		
 	    try {
 	        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
 	        return skf.generateSecret(spec).getEncoded();
@@ -30,8 +31,9 @@ public class PasswordAuthntication {
 
 	
 	  public static boolean isExpectedPassword(char[] password, byte[] salt, byte[] expectedHash) {
-		    byte[] pwdHash = hashPassword(password, salt);
 		    Arrays.fill(password, Character.MIN_VALUE);
+		    byte[] pwdHash = hashPassword(password, salt);
+		    
 		    if (pwdHash.length != expectedHash.length) return false;
 		    for (int i = 0; i < pwdHash.length; i++) {
 		      if (pwdHash[i] != expectedHash[i]) return false;
@@ -46,15 +48,24 @@ public class PasswordAuthntication {
 		byte[] hashPassword=hashPassword(password.toCharArray(), salt);
 		if(isExpectedPassword(password.toCharArray(),salt,hashPassword)){
 			System.out.println("password confirmed");
-			//System.out.println(hashPassword);
+			System.out.println(hashPassword);
 		}
 		password="yallllaaaaaaaa";
 		if(isExpectedPassword(password.toCharArray(),salt,hashPassword)){
 			System.out.println("password confirmed");
-			//System.out.println(hashPassword);
+			System.out.println(hashPassword);
 		}
 		else	System.out.println("wrong password");
 		
+		Authenticate au = new Authenticate();
+		if(au.AuthenticatePassword("nothingelsematters", "abhitiwari2605")){
+			System.out.println("password matched");
+		}
+		else
+			System.out.println("ho hallla");
+		
 	}
+	
+	
 
 }
