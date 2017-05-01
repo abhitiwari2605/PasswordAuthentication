@@ -1,3 +1,4 @@
+import java.security.NoSuchAlgorithmException;
 import java.sql.*;
 
 public class Authenticate {
@@ -10,7 +11,7 @@ public class Authenticate {
 		Con=C.returnConnection();
 		
 	}
-	public boolean AuthenticatePassword(String password, String username){
+	public boolean AuthenticatePassword(String password, String username) throws NoSuchAlgorithmException{
 		String passwordDB="";
 		try {
 			
@@ -34,7 +35,7 @@ public class Authenticate {
 		}
 		
 		PasswordAuthntication pw = new PasswordAuthntication();
-		if(PasswordAuthntication.isExpectedPassword(password.toCharArray(),pw.getNextSalt(), passwordDB.getBytes())){
+		if(PasswordAuthntication.isExpectedPassword(password, passwordDB)){
 			return true;
 		}
 		else return false;

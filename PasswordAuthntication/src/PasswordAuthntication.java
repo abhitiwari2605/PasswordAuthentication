@@ -1,57 +1,53 @@
 import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-
+import org.mindrot.jbcrypt.BCrypt;
 public class PasswordAuthntication {
 	
-	private final static int ITERATIONS =1000;
+	private final static int WORKLOAD =12;
 	private final static int KEY_LENGTH=256;
 	
-	public static byte[] getNextSalt(){
-		byte[] salt ={(byte) 11010110,00000110};
-		return salt;
+	public static byte[] getNextSalt() throws NoSuchAlgorithmException{
+        SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+        byte[] salt = new byte[16];
+        sr.nextBytes(salt);
+        return salt;
 	}
 	
-	public static byte[] hashPassword(char[] password, byte[] salt){
-		Arrays.fill(password, Character.MIN_VALUE);
-		PBEKeySpec spec = new PBEKeySpec(password, salt, ITERATIONS, KEY_LENGTH);
-		
-	    try {
-	        SecretKeyFactory skf = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-	        return skf.generateSecret(spec).getEncoded();
-	      } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-	        throw new AssertionError("Error while hashing a password: " + e.getMessage(), e);
-	      } finally {
-	        spec.clearPassword();
-	      }
+	public static String hashPassword(String password){
+		String salt = BCrypt.gensalt(WORKLOAD);
+		String hashed_password = BCrypt.hashpw(password, salt);
+		return(hashed_password);
+
 	}
 
 	
-	  public static boolean isExpectedPassword(char[] password, byte[] salt, byte[] expectedHash) {
-		    Arrays.fill(password, Character.MIN_VALUE);
-		    byte[] pwdHash = hashPassword(password, salt);
-		    
-		    if (pwdHash.length != expectedHash.length) return false;
-		    for (int i = 0; i < pwdHash.length; i++) {
-		      if (pwdHash[i] != expectedHash[i]) return false;
-		    }
-		    return true;
+	  public static boolean isExpectedPassword(String password, String StoredPassword) {
+		    String pwdHash = hashPassword(password);
+			boolean password_verified = false;
+
+			if(null == StoredPassword || !StoredPassword.startsWith("$2a$"))
+				throw new java.lang.IllegalArgumentException("Invalid hash provided for comparison");
+
+			password_verified = BCrypt.checkpw(password, StoredPassword);
+
+			return(password_verified);
 		  }
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws NoSuchAlgorithmException {
 		// TODO Auto-generated method stub
 		String password="nothingelsematters";
-		byte[] salt=getNextSalt();
-		byte[] hashPassword=hashPassword(password.toCharArray(), salt);
-		if(isExpectedPassword(password.toCharArray(),salt,hashPassword)){
+		String hashPassword=hashPassword(password);
+		if(isExpectedPassword(password,hashPassword)){
 			System.out.println("password confirmed");
 			System.out.println(hashPassword);
 		}
 		password="yallllaaaaaaaa";
-		if(isExpectedPassword(password.toCharArray(),salt,hashPassword)){
+		if(isExpectedPassword(password,hashPassword)){
 			System.out.println("password confirmed");
 			System.out.println(hashPassword);
 		}
