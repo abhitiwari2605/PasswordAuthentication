@@ -30,7 +30,14 @@ public class SignUp extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		response.setContentType("text/html");  
-		PrintWriter out = response.getWriter();  
+		PrintWriter out = response.getWriter();
+		String firstname=request.getParameter("firstname");  
+		String lastname=request.getParameter("lastname");  
+		String dob=request.getParameter("dob");  
+		String username=request.getParameter("username");
+		String password=request.getParameter("password");
+		User U=new User();
+		U.createUser(firstname, lastname, dob, password, username);
 		out.print("You are successfully registered");
 
 	}
